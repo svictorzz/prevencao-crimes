@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados da Pesquisa</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Resultados da Pesquisa</h1>
+        <a href="/">Voltar</a>
+    </header>
+    <main>
+        <div id="results">
+            {% if crimes %}
+                <ul>
+                    {% for crime in crimes %}
+                        <li>
+                            <a href="{{ url_for('crime_detail', crime_id=crime['_id']) }}">
+                                <strong>{{ crime['crime_type'] }}</strong> em {{ crime['area'] }} 
+                                <span>em {{ crime['formatted_time'] }}</span> - {{ crime['description'] }}
+                            </a>                            
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>Nenhum crime encontrado para sua pesquisa.</p>
+            {% endif %}
+        </div>
+
+        <div id="crime-counts">
+            <h2>Locais com Maior Incidência de Crimes</h2>
+            {% if crime_counts_by_region %}
+                <ul>
+                    {% for region in crime_counts_by_region %}
+                        <li>
+                            <strong>{{ region['_id'] }}:</strong> {{ region['count'] }} crimes
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>Nenhuma região com crimes registrados.</p>
+            {% endif %}
+        </div>
+    </main>
+</body>
+</html>

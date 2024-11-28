@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ crime['crime_type'] }} - Detalhes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Detalhes do Crime</h1>
+        <a href="/search?crime_type={{ request.args.get('crime_type', '') }}">Voltar para os Resultados</a>
+    </header>
+
+    <main>
+        <h2>{{ crime['crime_type'] }} em {{ crime['area'] }}</h2>
+        <p><strong>Descrição:</strong> {{ crime['description'] }}</p>
+        <p><strong>Data e Hora:</strong> {{ crime['formatted_time'] }}</p>
+
+        <!-- Exibir o mapa -->
+        <div id="map" style="height: 400px; width: 100%;"></div>
+    </main>
+
+    <!-- Carregar o script do Google Maps -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCyYzDfe4uprG7Xe6arhEfKigRqS2QLHx0&callback=initMap" async defer></script>
+
+    <script>
+        let map;  // Variável global para armazenar a instância do mapa
+
+        function initMap() {
+            // Criar o mapa usando as coordenadas de latitude e longitude do crime
+            const crimeLocation = {
+                lat: {{ crime['latitude'] }},
+                lng: {{ crime['longitude'] }}
+            };
+
+            // Criar a instância do mapa
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: crimeLocation,
+                zoom: 15
+            });
+
+            // Adicionar um marcador no local do crime
+            new google.maps.Marker({
+                position: crimeLocation,
+                map: map,
+                title: '{{ crime["crime_type"] }} - {{ crime["area"] }}'
+            });
+        }
+
+        // Garantir que a função initMap seja chamada corretamente
+        window.onload = function() {
+            initMap();
+        };
+    </script>
+</body>
+</html>

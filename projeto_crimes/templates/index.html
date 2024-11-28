@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesquisa de Crimes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Adicionar o estilo do Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <!-- Adicionar o script do Leaflet -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Pesquisa de Crimes</h1>
+    </header>
+
+    <main>
+        <!-- Formulário de pesquisa -->
+        <form action="/search" method="get">
+            <label for="crime_type">Tipo de Crime:</label>
+            <input type="text" id="crime_type" name="crime_type" value="{{ crime_type }}">
+
+            <label for="region">Região:</label>
+            <select id="region" name="region">
+                <option value="">Todas as regiões</option>
+                {% if regions %}
+                    {% for region_option in regions %}
+                        <option value="{{ region_option }}" {% if region == region_option %}selected{% endif %}>{{ region_option }}</option>
+                    {% endfor %}
+                {% else %}
+                    <option value="">Nenhuma região disponível</option>
+                {% endif %}
+            </select>
+
+            <button type="submit">Pesquisar</button>
+        </form>
+
+        <!-- Mapa interativo -->
+        <div id="map" style="height: 400px; width: 100%; margin-top: 20px;"></div>
+
+        <script>
+            var map = L.map('map').setView([-23.55052, -46.633308], 12);
+        
+            // Adicionar camada de mapa
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+        
+            {% for location in crime_locations %}
+                var marker = L.marker([{{ location.lat }}, {{ location.lng }}]).addTo(map)
+                    .bindPopup("{{ location.type }}")  // Exibe o tipo de crime ao clicar
+                    .bindTooltip("{{ location.type }}", { permanent: false, direction: 'top' });  // Exibe o tipo de crime ao passar o mouse
+            {% endfor %}
+        </script>
+        
+    </main>
+</body>
+</html>

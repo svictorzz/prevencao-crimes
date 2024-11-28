@@ -1,0 +1,218 @@
+/* Definições gerais */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f6f9;
+    color: #333;
+    line-height: 1.6;
+}
+
+h1, h2 {
+    color: #444;
+    font-weight: 600;
+}
+
+a {
+    text-decoration: none;
+    color: #3498db;
+}
+
+a:hover {
+    color: #2980b9;
+}
+
+/* Estilo para o header */
+header {
+    background-color: #3498db;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    font-size: 2.5rem;
+    color: white;
+}
+
+/* Formulário de pesquisa */
+form {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    max-width: 600px;
+    margin: 40px auto;
+    text-align: center;
+}
+
+form input[type="text"] {
+    width: 70%;
+    padding: 12px;
+    margin-right: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+form button {
+    padding: 12px 20px;
+    background-color: #3498db;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #2980b9;
+}
+
+/* Responsividade para telas pequenas */
+@media screen and (max-width: 600px) {
+    header h1 {
+        font-size: 2rem;
+    }
+
+    form {
+        width: 90%;
+        padding: 20px;
+    }
+
+    form input[type="text"] {
+        width: 60%;
+        margin-bottom: 15px;
+    }
+
+    form button {
+        width: 100%;
+    }
+}
+
+/* Estilo para os resultados */
+#results {
+    margin-top: 40px;
+    text-align: left;
+    padding: 0 20px;
+}
+
+#results ul {
+    list-style-type: none;
+    margin-top: 20px;
+}
+
+#results li {
+    background-color: #fff;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#results li:hover {
+    background-color: #ecf0f1;
+}
+
+#results p {
+    font-size: 1.2rem;
+    color: #555;
+    text-align: center;
+}
+
+/* Botão de voltar */
+header a {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: #3498db;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+header a:hover {
+    background-color: #2980b9;
+}
+
+#map {
+    height: 400px;
+    width: 100%;
+    margin-top: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo para a seção de locais com maior incidência */
+#crime-counts {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 40px;
+}
+
+#crime-counts h2 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#crime-counts ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#crime-counts li {
+    background-color: #f9f9f9;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 1.2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#crime-counts li:hover {
+    background-color: #ecf0f1;
+}
+
+#crime-counts li strong {
+    color: #333;
+    font-weight: 600;
+}
+
+#crime-counts li span {
+    font-size: 1rem;
+    color: #555;
+}
+
+/* Ajustes de responsividade */
+@media screen and (max-width: 600px) {
+    #crime-counts {
+        padding: 15px;
+    }
+
+    #crime-counts h2 {
+        font-size: 1.6rem;
+    }
+
+    #crime-counts li {
+        font-size: 1rem;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #crime-counts li strong {
+        margin-bottom: 5px;
+    }
+}
