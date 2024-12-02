@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ crime['crime_type'] }} - Detalhes</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css"/>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
 </head>
 <body>
     <header>
@@ -24,34 +26,108 @@
     <!-- Carregar o script do Google Maps -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCyYzDfe4uprG7Xe6arhEfKigRqS2QLHx0&callback=initMap" async defer></script>
 
+   
     <script>
         let map;  // Variável global para armazenar a instância do mapa
 
         function initMap() {
-            // Criar o mapa usando as coordenadas de latitude e longitude do crime
-            const crimeLocation = {
-                lat: {{ crime['latitude'] }},
-                lng: {{ crime['longitude'] }}
+
+            var apiGeolocationSuccess = function(position) {
+                alert("API geolocation success!\n\nlat = " + position.coords.latitude + "\nlng = " + position.coords.longitude);
             };
 
-            // Criar a instância do mapa
-            map = new google.maps.Map(document.getElementById('map'), {
-                center: crimeLocation,
-                zoom: 15
-            });
+            var tryAPIGeolocation = function() {
+                jQuery.post( "https://www.googleapis.com/geolocation/v1/geolocate?key=AIzaSyDCa1LUe1vOczX1hO_iGYgyo8p_jYuGOPU", function(success) {
+                apiGeolocationSuccess({coords: {latitude: success.location.lat, longitude: success.location.lng}});
+                })
+                .fail(function(err) {
+                    alert("API Geolocation error! \n\n"+err);
+                });
+            };
 
-            // Adicionar um marcador no local do crime
-            new google.maps.Marker({
-                position: crimeLocation,
-                map: map,
-                title: '{{ crime["crime_type"] }} - {{ crime["area"] }}'
-            });
+            var browserGeolocationSuccess = function(position) {
+                userLat = position.coords.latitude;
+                userLen = position.coords.longitude;
+                processLocation(userLat, userLen);
+            };
+
+            var browserGeolocationFail = function(error) {
+                switch (error.code) {
+                    case error.TIMEOUT:
+                        alert("Browser geolocation error !\n\nTimeout.");
+                    break;
+                    case error.PERMISSION_DENIED:
+                        if(error.message.indexOf("Only secure origins are allowed") == 0) {
+                            tryAPIGeolocation();
+                        }
+                    break;
+                    case error.POSITION_UNAVAILABLE:
+                        alert("Browser geolocation error !\n\nPosition unavailable.");
+                    break;
+                }
+            };
+
+            var tryGeolocation = function() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        browserGeolocationSuccess,
+                        browserGeolocationFail,
+                        {maximumAge: 50000, timeout: 20000, enableHighAccuracy: true});
+                }
+            };
+
+
+            tryGeolocation();
+
+            function processLocation(latitude, longitude) {
+                const origin = { lat: latitude, lng: longitude };
+
+                const crimeLocation = {
+                    lat: {{ crime['latitude'] }},
+                    lng: {{ crime['longitude'] }}
+                };
+
+                // Criar a instância do mapa
+                map = new google.maps.Map(document.getElementById('map'), {
+                    center: crimeLocation,
+                    zoom: 15
+                });
+
+                // Adicionar um marcador no local do crime
+                new google.maps.Marker({
+                    position: crimeLocation,
+                    map: map,
+                    title: '{{ crime["crime_type"] }} - {{ crime["area"] }}'
+                });
+
+                // Adicionar a rota entre a origem e o destino
+                const directionsService = new google.maps.DirectionsService();
+                const directionsRenderer = new google.maps.DirectionsRenderer();
+                directionsRenderer.setMap(map);
+
+                // Solicitar a rota
+                directionsService.route(
+                    {
+                        origin: origin,
+                        destination: crimeLocation,
+                        travelMode: 'DRIVING'
+                    },
+                    (response, status) => {
+                        if (status === 'OK') {
+                            directionsRenderer.setDirections(response);  // Exibir a rota no mapa
+                        } else {
+                            console.error('Erro ao calcular a rota: ' + status);
+                        }
+                    }
+                );
+
+            }
         }
 
         // Garantir que a função initMap seja chamada corretamente
         window.onload = function() {
             initMap();
         };
-    </script>
+</script>
 </body>
 </html>

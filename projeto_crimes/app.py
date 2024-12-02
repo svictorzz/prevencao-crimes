@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 from pymongo import MongoClient
 from datetime import datetime
 from bson import ObjectId
+from twilio.rest import Client
 
 app = Flask(__name__)
 
@@ -9,6 +10,24 @@ app = Flask(__name__)
 client = MongoClient("mongodb+srv://scrumTeam:OsRV9Q3IUvdoGOZt@clusteres3.lj0e2.mongodb.net/?retryWrites=true&w=majority&appName=clusterES3")
 db = client["crime_db"]
 crimes_collection = db["crimes"]
+
+# Configuração do Twilio
+twilio_sid = 'AC18d8aed0340bcc295a0a6191258bb982'
+twilio_auth_token = 'a18c34062e00275b64b3a74318219bc6'
+twilio_phone_number = '5511976620206'
+twilio_client = Client(twilio_sid, twilio_auth_token)
+
+def send_sms_notification(crime):
+    """Função para enviar SMS notificando sobre um novo crime"""
+    try:
+        message = twilio_client.messages.create(
+            body=f"Novo Crime Reportado!\nTipo: {crime['crime_type']}\nLocalização: {crime['area']}\nHora: {crime['formatted_time']}\nDescrição: {crime['description']}",
+            from_=twilio_phone_number,
+            to='+553186113922'
+        )
+        print(f"SMS enviado com sucesso! SID: {message.sid}")
+    except Exception as e:
+        print(f"Erro ao enviar SMS: {str(e)}")
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -20,7 +39,7 @@ def index():
         regions = ["Nenhuma região disponível"]
 
     # Buscar as coordenadas e o tipo de crime para exibir no mapa
-    crimes = list(crimes_collection.find().limit(50))  # Exemplo de limite para exibir apenas os 10 primeiros
+    crimes = list(crimes_collection.find().limit(100)) 
 
     # Alterando a criação de crime_locations para incluir o crime_id
     crime_locations = [
@@ -47,7 +66,6 @@ def search():
     # Consultando crimes no MongoDB, ordenando por tipo
     crimes = list(crimes_collection.find(query).sort([("crime_type", 1)]))
 
-   
     # Contagem de crimes por região
     crime_counts_by_region = list(crimes_collection.aggregate([
         {"$match": query},
@@ -55,7 +73,7 @@ def search():
         {"$sort": {"count": -1}}  # Ordenar por maior incidência
     ]))
 
-    # Formatar a data de cada crime para um formato amigável
+    # Formatar a data de cada crime
     for crime in crimes:
         crime_time = crime.get("time")  
         if crime_time:
@@ -90,6 +108,41 @@ def crime_detail(crime_id):
     except Exception as e:
         # Se ocorrer um erro na conversão ou na busca, exibe uma mensagem genérica
         return f"Erro ao procurar o crime: {str(e)}", 500
+
+
+@app.route("/add_crime", methods=["GET", "POST"])
+def add_crime():
+    if request.method == "POST":
+        # Capturar dados do formulário
+        latitude = request.form.get("latitude")
+        longitude = request.form.get("longitude")
+        crime_type = request.form.get("crime_type")
+        area = request.form.get("area")
+        time = request.form.get("time")
+        description = request.form.get("description")
+
+        # Validar campos obrigatórios
+        if not (latitude and longitude and crime_type and area and time and description):
+            return redirect(url_for('add_crime', message="Todos os campos são obrigatórios!", status="error"))
+
+        # Inserir no banco de dados
+        crime = {
+            "latitude": float(latitude),
+            "longitude": float(longitude),
+            "crime_type": crime_type,
+            "area": area,
+            "time": time,
+            "description" : description
+        }
+        crimes_collection.insert_one(crime)
+
+        # Enviar notificação por SMS
+        send_sms_notification(crime)
+
+        return redirect(url_for('add_crime', message="Crime cadastrado com sucesso!", status="success"))
+
+    # Exibir página de cadastro
+    return render_template("add_crime.html")  
 
 if __name__ == "__main__":
     app.run(debug=True)

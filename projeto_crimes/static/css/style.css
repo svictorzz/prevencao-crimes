@@ -48,18 +48,38 @@ form {
     width: 80%;
     max-width: 600px;
     margin: 40px auto;
-    text-align: center;
+    text-align: left;
 }
 
-form input[type="text"] {
-    width: 70%;
+/* Estilo para os campos de entrada de texto */
+form input[type="text"],
+form input[type="datetime-local"],
+form textarea {
+    width: 100%;
     padding: 12px;
-    margin-right: 10px;
+    margin: 8px 0;
     border-radius: 5px;
     border: 1px solid #ccc;
     font-size: 1rem;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease;
 }
 
+/* Foco nos campos de entrada */
+form input[type="text"]:focus,
+form input[type="datetime-local"]:focus,
+form textarea:focus {
+    border-color: #3498db;
+    outline: none;
+}
+
+/* Estilo para a área de descrição */
+form textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* Estilo para o botão */
 form button {
     padding: 12px 20px;
     background-color: #3498db;
@@ -68,10 +88,24 @@ form button {
     color: white;
     font-size: 1rem;
     cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
 }
 
 form button:hover {
     background-color: #2980b9;
+}
+
+/* Estilo para as labels */
+form label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: inline-block;
+}
+
+/* Adicionando espaçamento entre os campos */
+form .form-group {
+    margin-bottom: 20px;
 }
 
 /* Responsividade para telas pequenas */
@@ -215,4 +249,38 @@ header a:hover {
     #crime-counts li strong {
         margin-bottom: 5px;
     }
+}
+
+/* Estilo geral do popup */
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #3498db;
+    color: white;
+    padding: 20px 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    font-size: 1.2rem;
+    text-align: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* Mostra o popup */
+.popup.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Cores para mensagens de sucesso e erro */
+.popup.success {
+    background-color: #2ecc71; /* Verde */
+}
+
+.popup.error {
+    background-color: #e74c3c; /* Vermelho */
 }

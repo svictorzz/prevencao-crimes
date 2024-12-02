@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Crime</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Adicionar estilo e script do Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+<body>
+    <!-- Cabeçalho -->
+    <header>
+        <h1>ZeroCrime</h1>
+        <nav>
+            <a href="/">Voltar</a>
+        </nav>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main>
+        <h2>Selecione um local no mapa para cadastrar um crime</h2>
+
+        <!-- Mapa -->
+        <div id="map"></div>
+
+        <!-- Formulário de cadastro -->
+        <form id="crimeForm" action="/add_crime" method="post" style="display: none;">
+            <h3>Detalhes do Crime</h3>
+        
+            <!-- Campo oculto para latitude e longitude -->
+            <input type="hidden" id="latitude" name="latitude" required>
+            <input type="hidden" id="longitude" name="longitude" required>
+        
+            <!-- Campo de tipo de crime -->
+            <div class="form-group">
+                <label for="crime_type">Tipo de Crime:</label>
+                <input type="text" id="crime_type" name="crime_type" placeholder="Ex: Roubo, Furto..." required>
+            </div>
+        
+            <!-- Campo de região -->
+            <div class="form-group">
+                <label for="area">Região:</label>
+                <input type="text" id="area" name="area" placeholder="Ex: Centro, Zona Sul..." required>
+            </div>
+        
+            <!-- Campo de descrição -->
+            <div class="form-group">
+                <label for="description">Descrição:</label>
+                <textarea id="description" name="description" rows="4" placeholder="Descreva o ocorrido..." required></textarea>
+            </div>
+        
+            <!-- Campo de data e hora -->
+            <div class="form-group">
+                <label for="time">Data e Hora:</label>
+                <input type="datetime-local" id="time" name="time" required>
+            </div>
+        
+            <!-- Botão para submeter o formulário -->
+            <button type="submit">Cadastrar Crime</button>
+        </form>
+    </main>
+
+    <!-- Script do Leaflet -->
+    <script>
+        var map = L.map('map').setView([-23.55052, -46.633308], 12);
+    
+        // Adicionar camada de mapa
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+    
+        var marker;
+    
+        map.on('click', function(e) {
+    var latitude = e.latlng.lat.toFixed(6);  
+    var longitude = e.latlng.lng.toFixed(6); 
+
+    document.getElementById('latitude').value = latitude;
+    document.getElementById('longitude').value = longitude;
+
+    document.getElementById('crimeForm').style.display = "block";
+
+    if (marker) {
+        map.removeLayer(marker);
+    }
+    marker = L.marker([latitude, longitude]).addTo(map);
+});
+    </script>
+
+    <!-- Script para exibir popup de sucesso ou erro -->
+    <script>
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const message = urlParams.get('message');
+            const status = urlParams.get('status');
+
+            if (message) {
+                alert(message);  
+                if (status === "success") {
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 2000);
+                }
+            }
+        }
+    </script>
+
+    <!-- Popup de mensagem -->
+    <div id="popupMessage" class="popup hidden">
+        <p id="popupText"></p>
+    </div>
+</body>
+</html>
